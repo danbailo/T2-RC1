@@ -13,10 +13,13 @@
 #define SA struct sockaddr
 #define h_addr h_addr_list[0] /* for backward compatibility */
 
+using namespace std;
+
 int sockfd;
 
 void func(int sockfd) { 
     char buff[MAX]; 
+    int state = 0;
     int n; 
     while(1){ 
         bzero(buff, sizeof(buff)); 
@@ -32,14 +35,19 @@ void func(int sockfd) {
 
         while((buff[n++] = getchar()) != '\n');
 
+        if((strncmp("sair", buff, 4)) == 0){
+            state = 1;
+        }
+
         write(sockfd, buff, sizeof(buff)); 
-        bzero(buff, sizeof(buff)); 
-        read(sockfd, buff, sizeof(buff)); 
+        read(sockfd, buff, sizeof(buff));
         printf("Resposta: %s\n", buff); 
-        if ((strncmp("sair", buff, 4)) == 0) { 
+        if(state) { 
             printf("Client Exit...\n"); 
             exit(0);
         }
+        bzero(buff, sizeof(buff)); 
+
     } 
 } 
   

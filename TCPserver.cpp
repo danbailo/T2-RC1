@@ -33,9 +33,9 @@ void func(int sockfd, int port2){
     int n;
     char name[80] = {0};
     struct tm time = now();
-    int day = time.tm_mday;
-
+    string day = to_string(time.tm_mday);
     string time_client = to_string(time.tm_hour) + ":" + to_string(time.tm_min) + ":" + to_string(time.tm_sec);
+
 
     strncpy(name, "127.0.0.1", 63);
 
@@ -67,7 +67,7 @@ void func(int sockfd, int port2){
         exit(1);
     }
     else{
-        printf("Conexão estabelecida com sucesso!\n");
+        printf("Conexão estabelecida com sucesso!\n\n");
     }
 
     // infinite loop for chat
@@ -77,27 +77,22 @@ void func(int sockfd, int port2){
         // read the message from client and copy it in buffer
         read(sockfd, buff, sizeof(buff));
 
-        if (strncmp("horas", buff, 5) == 0){            
-            // sprintf(buff, "%d:%d:%d\n",hours,minutes,seconds);
-            // write(sockfd, buff, sizeof(buff));
+        string op = buff;
 
+        if (strncmp("horas", buff, 5) == 0){             
             string time_send = "Horário "+ time_client +"\n";
-            write(sockfd, time_send.c_str(), sizeof(time_send.c_str()));
-
+            strcpy(buff, time_send.c_str());
+            write(sockfd, buff, sizeof(buff));
         }
 
         else if (strncmp("dia", buff, 3) == 0){
-            sprintf(buff, "%d\n",day);
+            string day_send = "Hoje é dia "+ day +"\n";
+            strcpy(buff,day_send.c_str());
             write(sockfd, buff, sizeof(buff));
         }
         else if (strncmp("sair", buff, 4) == 0){
-            
-            char exit_client[] = "Obrigado por utilizar nossos serviços!";
-
-            write(sockfd, exit_client, sizeof(exit_client));
-            // close(sockfd);
-            // close(sock);
-            // exit(1);
+            strcpy(buff, "Obrigado por utilizar nossos serviços!\n");
+            write(sockfd, buff, sizeof(buff));
         }
         else{
             write(sock, buff, sizeof(buff));
@@ -106,13 +101,14 @@ void func(int sockfd, int port2){
 
             write(sockfd, buff, sizeof(buff));
 
-            // if msg contains "Exit" then server exit and chat ended.
-            if (strncmp("exit", buff, 4) == 0){
-                printf("Server Exit...\n");
-                break;
-            }
+            // // if msg contains "Exit" then server exit and chat ended.
+            // if (strncmp("exit", buff, 4) == 0){
+            //     printf("Server Exit...\n");
+            //     break;
+            // }
         }
-        printf("From client: %s\t To client : ", buff);
+        printf("Cliente enviou: %s\n", op.c_str());
+        printf("Enviado para o cliente: %s\n", buff);
         bzero(buff, MAX);
         n = 0;
     }

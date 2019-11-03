@@ -44,11 +44,11 @@ void func(int sockfd){
         // read the message from client and copy it in buffer
         read(sockfd, buff, sizeof(buff));
 
-        if (strncmp("integrantes", buff, 11) == 0){
-            char group[] = "O grupo é formado por Daniel, Josué e Beatriz.\n";
-            strcpy(buff, "O grupo é formado por Daniel, Josué e Beatriz.\n");
+        string op = buff;
 
-            write(sockfd, group, sizeof(group));
+        if (strncmp("integrantes", buff, 11) == 0){
+            strcpy(buff, "O grupo é formado por Daniel, Josué e Beatriz.\n");
+            write(sockfd, buff, sizeof(buff));
         }
 
         if (strncmp("mes", buff, 3) == 0){
@@ -59,25 +59,25 @@ void func(int sockfd){
         }
 
         else if(strncmp("sair", buff, 4) == 0){
-            char exit_client[] = "Obrigado por utilizar nossos serviços!";
-            write(sockfd, exit_client, sizeof(exit_client));
+            strcpy(buff, "Obrigado por utilizar nossos serviços!\n");
+            write(sockfd, buff, sizeof(buff));
         }
-
         else{
-            write(sockfd, "Não encontrado\n", sizeof("Não encontrado\n"));
-        }   
+            write(sockfd, buff, sizeof(buff));
+            bzero(buff, MAX);
+            read(sockfd, buff, sizeof(buff));
 
-        // print buffer which contains the client contents
-        printf("From client: %s\t To client : ", buff);
 
+            // // if msg contains "Exit" then server exit and chat ended.
+            // if (strncmp("exit", buff, 4) == 0){
+            //     printf("Server Exit...\n");
+            //     break;
+            // }
+        }
+        printf("Cliente enviou: %s\n", op.c_str());
+        printf("Enviado para o cliente: %s\n", buff);
         bzero(buff, MAX);
         n = 0;
-
-        // if msg contains "Exit" then server exit and chat ended.
-        if (strncmp("exit", buff, 4) == 0){
-            printf("Server Exit...\n");
-            close(sockfd);
-        }
     }
 }
 
@@ -136,7 +136,7 @@ int main(int argc, char *argv[]){
     }
     else{
         printf("server acccept the client...\n");
-        printf("Conexão estabelecida com sucesso!\n");
+        printf("Conexão estabelecida com sucesso!\n\n");
 
     }
 
