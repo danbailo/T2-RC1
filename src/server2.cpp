@@ -113,7 +113,7 @@ int request(int sockfd, int id_client){
 int main(int argc, char *argv[]){
     //Nessa parte iremos forçar o usuário entrar com a porta do servidor.
     if(argc != 2){
-        printf("Informe uma porta para executar\n");
+        printf("Por favor, entre somente com uma porta, onde esta deve ser a mesma que foi digitada na execução do servidor 1!\n");
         exit(-1);
     }    
 

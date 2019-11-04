@@ -52,6 +52,7 @@ int new_connection(int port2){
     int conn = connect(sock, (SA *)&paddr, palen);
     if(conn < 0){
         printf("Por favor, inicie o servidor 2 com a mesma porta que foi passado na linha de comando antes de inicar a execução!\n");
+        printf("Por favor, aperte CTRL+C para encerrar o programa!\n");
         exit(-1);
     }
     return sock;
@@ -151,7 +152,7 @@ int main(int argc, char *argv[]){
 
     //Nessa parte iremos forçar o usuário entrar com a porta do servidor.
     if(argc != 3){
-        printf("Por favor, entre com a porta do servidor 1 e servidor 2, respectivamente!\n");
+        printf("Por favor, entre somente com a porta do servidor 1 e servidor 2, respectivamente!\n");
         exit(-1);
     }
 

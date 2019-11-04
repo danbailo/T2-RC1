@@ -28,23 +28,19 @@ int client(int port){
 void request(int sockfd) { 
     char buff[MAX]; 
     int state = 1;
-    int n; 
+    int i = 0; 
     while(state){ 
         memset(&buff, 0, sizeof(buff));
         // system("clear");
-        printf("\nEntre com a opção desejada"); 
-        n = 0;
-
-        printf("\n[integrantes] Quais são os integrantes deste grupo?\n");
+        printf("\nEntre com a opção desejada\n"); 
+        printf("[integrantes] Quais são os integrantes deste grupo?\n");
         printf("[dia] Qual é o dia de hoje?\n");
         printf("[mes] Qual é o dia de hoje?\n");
         printf("[horas] Que horas são?\n");
         printf("[sair] Sair.\n");
 
-        while((buff[n++] = getchar()) != '\n');
-
+        while((buff[i++] = getchar()) != '\n');
         if((strncmp("sair", buff, 4)) == 0) state = 0;
-
         write(sockfd, buff, sizeof(buff)); 
         read(sockfd, buff, sizeof(buff));
         printf("Resposta: %s", buff); 
@@ -57,10 +53,10 @@ int main(int argc, char *argv[]) {
     int connfd; 
     struct sockaddr_in servaddr, cli; 
 
-    //Nessa parte iremos forçar o usuário entrar com o IP e porta do servidor.
+    //Nessa parte iremos forçar o usuário entrar com a porta do servidor.
     if(argc != 2){
-        cerr << "Digite o IP(localhost) e a porta do servidor!" << endl; 
-        exit(0); 
+        printf("Por favor, entre somente com a porta do servidor!\n");
+        exit(-1); 
     } 
     
     //Atribui o IP e a Porta as seguintes variáveis.
