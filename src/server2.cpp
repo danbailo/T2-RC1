@@ -23,14 +23,13 @@ int server(){
     // socket create and verification
     int serverSd = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSd == -1){
-        printf("socket creation failed...\n");
-        exit(0);
+        printf("Erro ao criar o socket!\n");
+        exit(-1);
     }
     printf("Servidor ligado com sucesso!\n");
     printf("Esperando cliente se conectar\n\n");    
     return serverSd;
 }
-
 
 int bind(int port, int serverSd){
     //Configura o socket e as ferramentas de conexão.
@@ -43,19 +42,18 @@ int bind(int port, int serverSd){
     //Vincula o socket com o endereço local.
     int bindStatus = bind(serverSd, (struct sockaddr*) &servAddr, sizeof(servAddr));
     if(bindStatus < 0){
-        cerr << "Erro ao criar socket com esta porta! Por favor, tente outra." << endl;
-        exit(0);
+        printf("Erro ao criar socket com esta porta! Por favor, tente outra.\n");
+        exit(-1);
     }
     return bindStatus;
 }
 
 void listener(int serverSd, int clients){
     // Now server is ready to listen and verification
-    if ((listen(serverSd, clients)) != 0){
-        printf("Listen failed...\n");
-        exit(0);
+    if (listen(serverSd, clients) != 0){
+        printf("Falha ao inicializar o módulo de ouvir os clientes!\n");
+        exit(-1);
     }
-    // printf("Esperando cliente se c");
 }
 
 // Function designed for chat between client and server.
@@ -67,36 +65,28 @@ int request(int sockfd, int id_client){
     // infinite loop for chat
     while(1){
         memset(&buffer, 0, sizeof(buffer));
-
         // read the message from client and copy it in buffer
         read(sockfd, buffer, sizeof(buffer));
-
         string op;
-
         for(int i=0; i < MAX; i++){
             if(buffer[i] == '\0' || buffer[i] == '\n' || buffer[i] == ' ') break;
             op += buffer[i];
         }
-
         if (op == "integrantes"){
             strcpy(buffer, "O grupo é formado por Daniel, Josué e Beatriz.\n");
             write(sockfd, buffer, sizeof(buffer));
         }
-
         else if (op == "mes"){
             string month = "Atualmente estamos no mês "+ curr_month() +" do ano.\n";
             strcpy(buffer, month.c_str());
             write(sockfd, buffer, sizeof(buffer));
         }
-
         else if(op == "sair"){
             strcpy(buffer, "Obrigado por utilizar nossos serviços!\n");
             write(sockfd, buffer, sizeof(buffer));
             state = 0;
         }
-
         else if(op == "") continue;
-
         else{
             strcpy(buffer, "Não entendi sua solicitação!\n");
             write(sockfd, buffer, sizeof(buffer));
@@ -108,7 +98,6 @@ int request(int sockfd, int id_client){
     return state;
 }
 
-
 // Driver function
 int main(int argc, char *argv[]){
     //Nessa parte iremos forçar o usuário entrar com a porta do servidor.
@@ -116,7 +105,6 @@ int main(int argc, char *argv[]){
         printf("Por favor, entre somente com uma porta, onde esta deve ser a mesma que foi digitada na execução do servidor 1!\n");
         exit(-1);
     }    
-
 	int newSocket;
 	struct sockaddr_in newAddr;
 	socklen_t addr_size;    
@@ -125,11 +113,12 @@ int main(int argc, char *argv[]){
 
     //Atribui a Porta infomada pelo usuário a esta variável.
     int port = atoi(argv[1]);          
-
+    
     // socket create and verification
     int serverSd = server();
+    
     int bindStatus = bind(port, serverSd);
-
+    
     listener(serverSd,10);
 
     int id_client = 0;
@@ -138,15 +127,11 @@ int main(int argc, char *argv[]){
         id_client++;
         if(newSocket < 0) exit(-1);
         printf("Novo cliente conectado!\n");
-        // printf("ID:%d\n",ntohs(newAddr.sin_port));
         printf("ID:%d\n", id_client);        
-
 		if((childpid = fork()) == 0){
 			close(serverSd);
-
-			while(state){
+			while(state)
                 state = request(newSocket, id_client);
-			}
 		}
     }
     close(newSocket);

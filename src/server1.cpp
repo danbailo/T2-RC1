@@ -1,5 +1,6 @@
+// https://stackoverflow.com/questions/1790750/what-is-the-difference-between-read-and-recv-and-between-send-and-write
+
 #include <iostream>
-#include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
 #include <netdb.h>
@@ -33,8 +34,8 @@ int new_connection(int port2){
     struct hostent *host = gethostbyname("127.0.0.1");
 
     if (!host){
-        herror("error gethostbyname");
-        exit(1);
+        printf("Erro ao pegar o host!\n");
+        exit(-1);
     }
 
     struct sockaddr_in paddr = {0};
@@ -45,8 +46,8 @@ int new_connection(int port2){
 
     int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock < 0){
-        perror("socket error");
-        exit(1);
+        printf("Erro ao estabeler o socket!\n");
+        exit(-1);
     }
 
     int conn = connect(sock, (SA *)&paddr, palen);
@@ -62,8 +63,8 @@ int server(){
     // socket create and verification
     int serverSd = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSd == -1){
-        printf("socket creation failed...\n");
-        exit(0);
+        printf("Erro ao criar o socket!\n");
+        exit(-1);
     }
     printf("Servidor ligado com sucesso!\n");
     printf("Esperando cliente se conectar\n\n");    
@@ -81,8 +82,8 @@ int bind(int port, int serverSd){
     //Vincula o socket com o endereço local.
     int bindStatus = bind(serverSd, (struct sockaddr*) &servAddr, sizeof(servAddr));
     if(bindStatus < 0){
-        cerr << "Erro ao criar socket com esta porta! Por favor, tente outra." << endl;
-        exit(0);
+        printf("Erro ao criar socket com esta porta! Por favor, tente outra.\n");
+        exit(-1);
     }
     return bindStatus;
 }
@@ -93,12 +94,10 @@ void listener(int serverSd, int clients){
         printf("Listen failed...\n");
         exit(0);
     }
-    // printf("Esperando cliente se c");
 }
 
 // Function designed for chat between client and server.
 int request(int sockfd, int port2, int id_client){
-
     int sock = new_connection(port2);
     char buffer[MAX];
     int state = 1;
@@ -107,23 +106,18 @@ int request(int sockfd, int port2, int id_client){
     // infinite loop for chat
     while(state){
         memset(&buffer, 0, sizeof(buffer));
-
         // read the message from client and copy it in buffer
         read(sockfd, buffer, sizeof(buffer));
-
         string op;
-
         for(int i=0; i < MAX; i++){
             if(buffer[i] == '\0' || buffer[i] == '\n') break;
             op += buffer[i];
         }    
-
         if(op == "horas"){
             string time_send = "Horário "+ curr_time() +".\n";
             strcpy(buffer, time_send.c_str());
             write(sockfd, buffer, sizeof(buffer));
         }
-
         else if (op == "dia"){
             string day = "Hoje é dia "+ curr_day() +".\n";
             strcpy(buffer,day.c_str());
@@ -155,24 +149,23 @@ int main(int argc, char *argv[]){
         printf("Por favor, entre somente com a porta do servidor 1 e servidor 2, respectivamente!\n");
         exit(-1);
     }
-
 	int newSocket;
 	struct sockaddr_in newAddr;
 	socklen_t addr_size;    
     pid_t childpid;
+    int state = 1;
     
     //Atribui a Porta infomada pelo usuário a esta variável.
     int port = atoi(argv[1]);    
     //Atribui a Porta infomada pelo usuário a esta variável.
-    int port2 = atoi(argv[2]);        
-
+    int port2 = atoi(argv[2]);
+           
     int serverSd = server();
 
     //Configura o socket;
     int bindStatus = bind(port, serverSd);
 
     listener(serverSd,10);
-    int state = 1;
 
     int id_client = 0;
     while(state){
@@ -180,17 +173,12 @@ int main(int argc, char *argv[]){
         id_client++;
         if(newSocket < 0) exit(-1);
         printf("Novo cliente conectado!\n");
-        // printf("ID:%d\n", ntohs(newAddr.sin_port));
         printf("ID:%d\n", id_client);
-
 		if((childpid = fork()) == 0){
 			close(serverSd);
-
-			while(state){
+			while(state) 
                 state = request(newSocket, port2, id_client);
-			}
 		}        
     }
     close(newSocket);
-
 }
