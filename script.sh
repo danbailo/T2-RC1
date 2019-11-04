@@ -1,3 +1,3 @@
-g++ TCPserver.cpp -o server1
-g++ TCPserver2.cpp -o server2
-g++ TCPclient.cpp -o client
+g++ src/server1.cpp -o bin/server1
+g++ src/server2.cpp -o bin/server2
+g++ src/client.cpp -o bin/client
