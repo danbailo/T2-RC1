@@ -59,7 +59,7 @@ void listener(int serverSd, int clients){
 }
 
 // Function designed for chat between client and server.
-int request(int sockfd){
+int request(int sockfd, struct sockaddr_in newAddr){
     char buffer[MAX];
     int state = 1;
 
@@ -101,8 +101,8 @@ int request(int sockfd){
             strcpy(buffer, "Não entendi sua solicitação!\n");
             write(sockfd, buffer, sizeof(buffer));
         }
-        printf("Cliente enviou: %s\n", op.c_str());
-        printf("Enviado para o cliente: %s\n", buffer);
+        printf("Cliente %d solicitou: %s\n",ntohs(newAddr.sin_port), op.c_str());
+        printf("Enviado como resposta para o cliente: %s\n", buffer);
         memset(&buffer, 0, sizeof(buffer));
     }
     return state;
@@ -144,7 +144,7 @@ int main(int argc, char *argv[]){
 			close(serverSd);
 
 			while(state){
-                state = request(newSocket);
+                state = request(newSocket, newAddr);
 			}
 		}        
     }

@@ -48,14 +48,11 @@ int new_connection(int port2){
         perror("socket error");
         exit(1);
     }
-    // else{
-    //     printf("\n socket criado com sucesso");
-    // }
 
     int conn = connect(sock, (SA *)&paddr, palen);
     if(conn < 0){
-        printf("Por favor, ligue o servidor 2 antes de inicar a execução!\n");
-        exit(1);
+        printf("Por favor, inicie o servidor 2 com a mesma porta que foi passado na linha de comando antes de inicar a execução!\n");
+        exit(-1);
     }
     return sock;
 }
@@ -99,53 +96,52 @@ void listener(int serverSd, int clients){
 }
 
 // Function designed for chat between client and server.
-int request(int sockfd, int port2){
+int request(int sockfd, int port2, struct sockaddr_in newAddr){
 
-    char buff[MAX];
     int sock = new_connection(port2);
+    char buffer[MAX];
     int state = 1;
 
     printf("Aguardando requisição.\n\n");
     // infinite loop for chat
     while(state){
-        memset(&buff, 0, sizeof(buff));
+        memset(&buffer, 0, sizeof(buffer));
 
         // read the message from client and copy it in buffer
-        read(sockfd, buff, sizeof(buff));
+        read(sockfd, buffer, sizeof(buffer));
 
         string op;
 
         for(int i=0; i < MAX; i++){
-            if(buff[i] == '\0' || buff[i] == '\n') break;
-            op += buff[i];
+            if(buffer[i] == '\0' || buffer[i] == '\n') break;
+            op += buffer[i];
         }    
 
         if(op == "horas"){
-            string time_send = "Horário "+ curr_time() +"\n";
-            strcpy(buff, time_send.c_str());
-            write(sockfd, buff, sizeof(buff));
+            string time_send = "Horário "+ curr_time() +".\n";
+            strcpy(buffer, time_send.c_str());
+            write(sockfd, buffer, sizeof(buffer));
         }
 
         else if (op == "dia"){
-            string day = "Hoje é dia "+ curr_day() +"\n";
-            strcpy(buff,day.c_str());
-            write(sockfd, buff, sizeof(buff));
+            string day = "Hoje é dia "+ curr_day() +".\n";
+            strcpy(buffer,day.c_str());
+            write(sockfd, buffer, sizeof(buffer));
         }
         else if(op == "sair"){
-            strcpy(buff, "Obrigado por utilizar nossos serviços!\n");
-            write(sockfd, buff, sizeof(buff));
+            strcpy(buffer, "Obrigado por utilizar nossos serviços!\n");
+            write(sockfd, buffer, sizeof(buffer));
             state = 0;
         }
         else{
-            cout << "ENTREI AQUI\n";
-            write(sock, buff, sizeof(buff));
-            memset(&buff, 0, sizeof(buff));
-            read(sock, buff, sizeof(buff));
-            write(sockfd, buff, sizeof(buff));            
+            write(sock, buffer, sizeof(buffer));
+            memset(&buffer, 0, sizeof(buffer));
+            read(sock, buffer, sizeof(buffer));
+            write(sockfd, buffer, sizeof(buffer));          
         }
-        printf("Cliente enviou: %s\n", op.c_str());
-        printf("Enviado para o cliente: %s\n", buff);
-        memset(&buff, 0, sizeof(buff));
+        printf("Cliente %d solicitou: %s\n",ntohs(newAddr.sin_port), op.c_str());
+        printf("Enviado como resposta para o cliente: %s\n", buffer);
+        memset(&buffer, 0, sizeof(buffer));
     }
     return state;
 }
@@ -176,17 +172,20 @@ int main(int argc, char *argv[]){
 
     listener(serverSd,10);
     int state = 1;
+
+    int id_client = 1;
     while(state){
         newSocket = accept(serverSd, (struct sockaddr*)&newAddr, &addr_size);
         if(newSocket < 0) exit(-1);
         printf("Novo cliente conectado!\n");
+        // printf("ID:%d\n", ntohs(newAddr.sin_port));
         printf("ID:%d\n", ntohs(newAddr.sin_port));
 
 		if((childpid = fork()) == 0){
 			close(serverSd);
 
 			while(state){
-                state = request(newSocket, port2);
+                state = request(newSocket, port2, newAddr);
 			}
 		}        
     }

@@ -8,8 +8,9 @@
 
 using namespace std;
 
-int client(char *serverIp, int port){
+int client(int port){
     //Configura o socket e as ferramentas de conexão.
+    const char* serverIp = "127.0.0.1";
     struct hostent* host = gethostbyname(serverIp); 
     sockaddr_in sendSockAddr;   
     bzero((char*)&sendSockAddr, sizeof(sendSockAddr)); 
@@ -42,9 +43,7 @@ void request(int sockfd) {
 
         while((buff[n++] = getchar()) != '\n');
 
-        if((strncmp("sair", buff, 4)) == 0){
-            state = 0;
-        }
+        if((strncmp("sair", buff, 4)) == 0) state = 0;
 
         write(sockfd, buff, sizeof(buff)); 
         read(sockfd, buff, sizeof(buff));
@@ -59,15 +58,15 @@ int main(int argc, char *argv[]) {
     struct sockaddr_in servaddr, cli; 
 
     //Nessa parte iremos forçar o usuário entrar com o IP e porta do servidor.
-    if(argc != 3){
+    if(argc != 2){
         cerr << "Digite o IP(localhost) e a porta do servidor!" << endl; 
         exit(0); 
     } 
     
     //Atribui o IP e a Porta as seguintes variáveis.
-    char *serverIp = argv[1]; int port = atoi(argv[2]); 
+    int port = atoi(argv[1]); 
 
-    int clientSd = client(serverIp, port);
+    int clientSd = client(port);
     if (!clientSd){
         cout << "Erro ao conectar com o socket!" << endl;
         cout << "Verifique se o servidor está ligado!" << endl;
