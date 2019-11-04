@@ -3,19 +3,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <netdb.h>
-#include <stdio.h>
-
-#include <netinet/in.h>
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <time.h>
-
-#define MAX 1500
-#define SA struct sockaddr
-#define h_addr h_addr_list[0] /* for backward compatibility */
-
 
 using namespace std;
 
@@ -56,7 +43,7 @@ int new_connection(int port2){
         printf("Erro ao estabeler o socket!\n");
         exit(-1);
     }
-    int conn = connect(sock, (SA *)&paddr, palen);
+    int conn = connect(sock,(sockaddr*) &paddr, sizeof(paddr));
     if(conn < 0){
         printf("Por favor, inicie o servidor 2 com a mesma porta que foi passado na linha de comando antes de inicar a execução!\n");
         printf("Por favor, aperte CTRL+C para encerrar o programa!\n");
@@ -105,7 +92,7 @@ void listener(int serverSd, int clients){
 // Function designed for chat between client and server.
 int request(int sockfd, int port2, int id_client){
     int sock = new_connection(port2);
-    char buffer[MAX];
+    char buffer[1500];
     int state = 1;
 
     printf("Aguardando requisição.\n\n");
@@ -115,7 +102,7 @@ int request(int sockfd, int port2, int id_client){
         // read the message from client and copy it in buffer
         read(sockfd, buffer, sizeof(buffer));
         string op = "";
-        for(int i=0; i < MAX; i++){
+        for(int i=0; i < 1500; i++){
             if(buffer[i] == '\0' || buffer[i] == '\n') break;
             op += buffer[i];
         }    

@@ -3,15 +3,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <netdb.h>
-#include <stdio.h>
-#include <stdlib.h> 
-#include <netinet/in.h> 
-#include <sys/socket.h> 
-#include <sys/types.h>
-
-#define MAX 1500 
-#define SA struct sockaddr
-#define h_addr h_addr_list[0] /* for backward compatibility */
 
 using namespace std;
 
@@ -33,7 +24,7 @@ int client(int port){
 }
 
 void request(int sockfd) { 
-    char buff[MAX]; 
+    char buff[1500]; 
     int state = 1;
     while(state){ 
         int i = 0; 
