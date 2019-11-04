@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <netdb.h>
+#include <arpa/inet.h>
 
 using namespace std;
 
@@ -27,29 +28,20 @@ string curr_time(){
 }
 
 int new_connection(int port2){
-    struct hostent *host = gethostbyname("127.0.0.1");
-    if (!host){
-        printf("Erro ao pegar o host!\n");
-        exit(-1);
-    }
-    struct sockaddr_in paddr = {0};
-    socklen_t palen = sizeof(paddr);
-    paddr.sin_family = AF_INET;
-    paddr.sin_addr.s_addr = *(int32_t *)host->h_addr;
-    paddr.sin_port = htons(port2);
+    //Configura o socket e as ferramentas de conexão.
+    const char* serverIp = "127.0.0.1";
+    struct hostent* host = gethostbyname(serverIp); 
+    sockaddr_in sendSockAddr;   
+    bzero((char*)&sendSockAddr, sizeof(sendSockAddr)); 
+    sendSockAddr.sin_family = AF_INET; 
+    sendSockAddr.sin_addr.s_addr = inet_addr(inet_ntoa(*(struct in_addr*)*host->h_addr_list));
+    sendSockAddr.sin_port = htons(port2);
+    int serverSd = socket(AF_INET, SOCK_STREAM, 0);
 
-    int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (sock < 0){
-        printf("Erro ao estabeler o socket!\n");
-        exit(-1);
-    }
-    int conn = connect(sock,(sockaddr*) &paddr, sizeof(paddr));
-    if(conn < 0){
-        printf("Por favor, inicie o servidor 2 com a mesma porta que foi passado na linha de comando antes de inicar a execução!\n");
-        printf("Por favor, aperte CTRL+C para encerrar o programa!\n");
-        exit(-1);
-    }
-    return sock;
+    //Tenta conectar
+    int status = connect(serverSd,(sockaddr*) &sendSockAddr, sizeof(sendSockAddr));
+    if(status < 0) return 0;
+    return serverSd;
 }
 
 int server(){
@@ -101,11 +93,11 @@ int request(int sockfd, int port2, int id_client){
         memset(&buffer, 0, sizeof(buffer));
         // read the message from client and copy it in buffer
         read(sockfd, buffer, sizeof(buffer));
-        string op = "";
+        string op;
         for(int i=0; i < 1500; i++){
-            if(buffer[i] == '\0' || buffer[i] == '\n') break;
+            if(buffer[i] == '\0' || buffer[i] == '\n' || buffer[i] == ' ') break;
             op += buffer[i];
-        }    
+        }
         if(op == "horas"){
             string time_send = "Horário "+ curr_time() +".\n";
             strcpy(buffer, time_send.c_str());
@@ -120,12 +112,23 @@ int request(int sockfd, int port2, int id_client){
             strcpy(buffer, "Obrigado por utilizar nossos serviços!\n");
             write(sockfd, buffer, sizeof(buffer));
             state = 0;
+            char buffer_aux[] = "sair";
+            write(sock, buffer_aux, sizeof(buffer_aux));
+            read(sock, buffer_aux, sizeof(buffer_aux));            
         }
         else{
-            write(sock, buffer, sizeof(buffer));
-            memset(&buffer, 0, sizeof(buffer));
-            read(sock, buffer, sizeof(buffer));
-            write(sockfd, buffer, sizeof(buffer));          
+            if(op == ""){
+                memset(&buffer, ' ', sizeof(buffer));
+                write(sock, buffer, sizeof(buffer));
+                read(sock, buffer, sizeof(buffer));
+                write(sockfd, buffer, sizeof(buffer));          
+            } 
+            else{
+                write(sock, buffer, sizeof(buffer));
+                memset(&buffer, 0, sizeof(buffer));
+                read(sock, buffer, sizeof(buffer));
+                write(sockfd, buffer, sizeof(buffer));          
+            }          
         }
         printf("Cliente %d solicitou: %s\n", id_client, op.c_str());
         printf("Enviado como resposta para o cliente: %s\n", buffer);

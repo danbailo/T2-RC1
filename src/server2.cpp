@@ -9,9 +9,9 @@ using namespace std;
 
 //Função para pegar a data do sistema.
 string curr_month(){
-    time_t     now = time(0);
-    struct tm  tstruct;
-    char       buf[80];
+    time_t now = time(0);
+    struct tm tstruct;
+    char buf[80];
     tstruct = *localtime(&now);
     strftime(buf, sizeof(buf), "%m", &tstruct);
     return buf;
@@ -74,15 +74,17 @@ int request(int sockfd, int id_client){
     
     printf("Aguardando requisição.\n\n");
     // infinite loop for chat
-    while(1){
+    while(state){
         memset(&buffer, 0, sizeof(buffer));
         // read the message from client and copy it in buffer
         read(sockfd, buffer, sizeof(buffer));
         string op;
+
         for(int i=0; i < 1500; i++){
             if(buffer[i] == '\0' || buffer[i] == '\n' || buffer[i] == ' ') break;
             op += buffer[i];
         }
+
         if (op == "integrantes"){
             strcpy(buffer, "O grupo é formado por Daniel, Josué e Beatriz.\n");
             write(sockfd, buffer, sizeof(buffer));
@@ -97,8 +99,7 @@ int request(int sockfd, int id_client){
             strcpy(buffer, "Obrigado por utilizar nossos serviços!\n");
             write(sockfd, buffer, sizeof(buffer));
             state = 0;
-        }
-        else if(op == "") continue;
+        }     
         else{
             strcpy(buffer, "Não entendi sua solicitação!\n");
             write(sockfd, buffer, sizeof(buffer));
