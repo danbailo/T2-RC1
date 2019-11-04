@@ -3,9 +3,19 @@
 #include <unistd.h>
 #include <string.h>
 #include <netdb.h>
+#include <stdio.h>
+#include <map>
+#include <netinet/in.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <time.h>
 
 #define MAX 1500
 #define SA struct sockaddr
+#define h_addr h_addr_list[0] /* for backward compatibility */
+
 
 using namespace std;
 
@@ -60,7 +70,20 @@ void listener(int serverSd, int clients){
 int request(int sockfd, int id_client){
     char buffer[MAX];
     int state = 1;
-
+    map<int, string> months;
+    months.insert(pair<int, string>(1, "janeiro"));
+    months.insert(pair<int, string>(2, "fevereiro"));
+    months.insert(pair<int, string>(3, "março"));
+    months.insert(pair<int, string>(4, "abril"));
+    months.insert(pair<int, string>(5, "maio"));
+    months.insert(pair<int, string>(6, "junho"));
+    months.insert(pair<int, string>(7, "julho"));
+    months.insert(pair<int, string>(8, "agosto"));
+    months.insert(pair<int, string>(9, "setembro"));
+    months.insert(pair<int, string>(10, "outubro"));
+    months.insert(pair<int, string>(11, "novembro"));
+    months.insert(pair<int, string>(12, "dezembro"));
+    
     printf("Aguardando requisição.\n\n");
     // infinite loop for chat
     while(1){
@@ -77,7 +100,8 @@ int request(int sockfd, int id_client){
             write(sockfd, buffer, sizeof(buffer));
         }
         else if (op == "mes"){
-            string month = "Atualmente estamos no mês "+ curr_month() +" do ano.\n";
+            int month_number = stoi(curr_month());
+            string month = "Atualmente estamos no mês de "+ months.at(month_number) +".\n";
             strcpy(buffer, month.c_str());
             write(sockfd, buffer, sizeof(buffer));
         }

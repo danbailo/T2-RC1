@@ -1,20 +1,29 @@
 // https://stackoverflow.com/questions/1790750/what-is-the-difference-between-read-and-recv-and-between-send-and-write
-
 #include <iostream>
 #include <unistd.h>
 #include <string.h>
 #include <netdb.h>
+#include <stdio.h>
+
+#include <netinet/in.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <time.h>
 
 #define MAX 1500
 #define SA struct sockaddr
+#define h_addr h_addr_list[0] /* for backward compatibility */
+
 
 using namespace std;
 
 //Função para pegar o dia do sistema.
 string curr_day(){
-    time_t     now = time(0);
-    struct tm  tstruct;
-    char       buf[80];
+    time_t now = time(0);
+    struct tm tstruct;
+    char buf[80];
     tstruct = *localtime(&now);
     strftime(buf, sizeof(buf), "%d", &tstruct);
     return buf;
@@ -22,9 +31,9 @@ string curr_day(){
 
 //Função para pegar a hora do sistema.
 string curr_time(){
-    time_t     now = time(0);
-    struct tm  tstruct;
-    char       buf[80];
+    time_t now = time(0);
+    struct tm tstruct;
+    char buf[80];
     tstruct = *localtime(&now);
     strftime(buf, sizeof(buf), "%X", &tstruct);
     return buf;
@@ -32,12 +41,10 @@ string curr_time(){
 
 int new_connection(int port2){
     struct hostent *host = gethostbyname("127.0.0.1");
-
     if (!host){
         printf("Erro ao pegar o host!\n");
         exit(-1);
     }
-
     struct sockaddr_in paddr = {0};
     socklen_t palen = sizeof(paddr);
     paddr.sin_family = AF_INET;
@@ -49,7 +56,6 @@ int new_connection(int port2){
         printf("Erro ao estabeler o socket!\n");
         exit(-1);
     }
-
     int conn = connect(sock, (SA *)&paddr, palen);
     if(conn < 0){
         printf("Por favor, inicie o servidor 2 com a mesma porta que foi passado na linha de comando antes de inicar a execução!\n");
@@ -91,7 +97,7 @@ int bind(int port, int serverSd){
 void listener(int serverSd, int clients){
     // Now server is ready to listen and verification
     if ((listen(serverSd, clients)) != 0){
-        printf("Listen failed...\n");
+        printf("Falha ao inicializar o módulo de ouvir os clientes!\n");
         exit(0);
     }
 }
@@ -108,7 +114,7 @@ int request(int sockfd, int port2, int id_client){
         memset(&buffer, 0, sizeof(buffer));
         // read the message from client and copy it in buffer
         read(sockfd, buffer, sizeof(buffer));
-        string op;
+        string op = "";
         for(int i=0; i < MAX; i++){
             if(buffer[i] == '\0' || buffer[i] == '\n') break;
             op += buffer[i];
