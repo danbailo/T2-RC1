@@ -28,4 +28,4 @@ Para executar o programa, ainda com o terminal/prompt de comando aberto, siga os
 
 ### Agradecimentos
 
-Gostaria de agradecer ao meu amigo Leandro Viana([@leandrocodes](https://github.com/leandrocodes/)) por me disponibilizar seu código para que eu pudesse aprender/entender a lógica da conexão de dois servidores para que um pudesse "pedir" para o outro caso este não houvesse tal informação, graças a ele, consegui implementar a minha versão do trabalho.
+Gostaria de agradecer ao meu amigo Leandro Viana([@leandrocodes](https://github.com/leandrocodes/)) por me disponibilizar seu código para que eu pudesse aprender/entender a lógica da conexão de dois servidores para que um pudesse solicitar informação para outro servidor caso este não houvesse tal informação. Graças a ele, consegui implementar a minha versão do trabalho.
