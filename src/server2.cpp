@@ -59,7 +59,7 @@ void listener(int serverSd, int clients){
 }
 
 // Function designed for chat between client and server.
-int request(int sockfd, struct sockaddr_in newAddr){
+int request(int sockfd, int id_client){
     char buffer[MAX];
     int state = 1;
 
@@ -101,7 +101,7 @@ int request(int sockfd, struct sockaddr_in newAddr){
             strcpy(buffer, "Não entendi sua solicitação!\n");
             write(sockfd, buffer, sizeof(buffer));
         }
-        printf("Cliente %d solicitou: %s\n",ntohs(newAddr.sin_port), op.c_str());
+        printf("Cliente %d solicitou: %s\n",id_client, op.c_str());
         printf("Enviado como resposta para o cliente: %s\n", buffer);
         memset(&buffer, 0, sizeof(buffer));
     }
@@ -132,21 +132,22 @@ int main(int argc, char *argv[]){
 
     listener(serverSd,10);
 
+    int id_client = 0;
     while(state){
         newSocket = accept(serverSd, (struct sockaddr*)&newAddr, &addr_size);
+        id_client++;
         if(newSocket < 0) exit(-1);
-        // printf("Conexão aceita de %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
         printf("Novo cliente conectado!\n");
-        // printf("IP:%s\n",inet_ntoa(newAddr.sin_addr));
-        printf("ID:%d\n",ntohs(newAddr.sin_port));
+        // printf("ID:%d\n",ntohs(newAddr.sin_port));
+        printf("ID:%d\n", id_client);        
 
 		if((childpid = fork()) == 0){
 			close(serverSd);
 
 			while(state){
-                state = request(newSocket, newAddr);
+                state = request(newSocket, id_client);
 			}
-		}        
+		}
     }
     close(newSocket);
 }
