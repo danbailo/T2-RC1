@@ -68,10 +68,8 @@ int main(int argc, char *argv[]) {
     }
     cout << "Conectado com o servidor!" << endl;    
 
-    // function for chat 
     request(clientSd); 
-  
-    // close the socket 
+
     close(clientSd);
     printf("Conexão fechada!\n"); 
 } 

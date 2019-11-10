@@ -18,7 +18,7 @@ string curr_month(){
 }
 
 int server(){
-    // socket create and verification
+    // Cria o socket.
     int serverSd = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSd == -1){
         printf("Erro ao criar o socket!\n");
@@ -47,14 +47,13 @@ int bind(int port, int serverSd){
 }
 
 void listener(int serverSd, int clients){
-    // Now server is ready to listen and verification
+    // Server está pronto para ouvir os clientes.
     if (listen(serverSd, clients) != 0){
         printf("Falha ao inicializar o módulo de ouvir os clientes!\n");
         exit(-1);
     }
 }
 
-// Function designed for chat between client and server.
 int request(int sockfd, int id_client){
     char buffer[1500];
     int state = 1;
@@ -73,10 +72,11 @@ int request(int sockfd, int id_client){
     months.insert(pair<int, string>(12, "dezembro"));
     
     printf("Aguardando requisição.\n\n");
-    // infinite loop for chat
+
     while(state){
         memset(&buffer, 0, sizeof(buffer));
-        // read the message from client and copy it in buffer
+
+        //Lê a mensagem do cliente e copia ela no buffer
         read(sockfd, buffer, sizeof(buffer));
         string op;
 
@@ -111,7 +111,6 @@ int request(int sockfd, int id_client){
     return state;
 }
 
-// Driver function
 int main(int argc, char *argv[]){
     //Nessa parte iremos forçar o usuário entrar com a porta do servidor.
     if(argc != 2){
@@ -127,7 +126,6 @@ int main(int argc, char *argv[]){
     //Atribui a Porta infomada pelo usuário a esta variável.
     int port = atoi(argv[1]);          
     
-    // socket create and verification
     int serverSd = server();
     
     int bindStatus = bind(port, serverSd);
