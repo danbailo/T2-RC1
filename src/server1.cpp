@@ -51,9 +51,7 @@ int server(){
     if (serverSd == -1){
         printf("Erro ao criar o socket!\n");
         exit(-1);
-    }
-    printf("Servidor ligado com sucesso!\n");
-    printf("Esperando cliente se conectar\n\n");    
+    } 
     return serverSd;
 }
 
@@ -100,6 +98,7 @@ int request(int sockfd, int port2, int id_client){
             if(buffer[i] == '\0' || buffer[i] == '\n' || buffer[i] == ' ') break;
             op += buffer[i];
         }
+
         if(op == "horas"){
             string time_send = "Horário "+ curr_time() +".\n";
             strcpy(buffer, time_send.c_str());
@@ -129,8 +128,8 @@ int request(int sockfd, int port2, int id_client){
                 write(sock, buffer, sizeof(buffer));
                 memset(&buffer, 0, sizeof(buffer));
                 read(sock, buffer, sizeof(buffer));
-                write(sockfd, buffer, sizeof(buffer));          
-            }          
+                write(sockfd, buffer, sizeof(buffer));     
+            }       
         }
         printf("Cliente %d solicitou: %s\n", id_client, op.c_str());
         printf("Enviado como resposta para o cliente: %s\n", buffer);
@@ -161,6 +160,9 @@ int main(int argc, char *argv[]){
 
     //Configura o socket;
     int bindStatus = bind(port, serverSd);
+
+	printf("Servidor ligado com sucesso!\n");
+    printf("Esperando cliente se conectar\n\n");   
 
     listener(serverSd,10);
 

@@ -24,11 +24,13 @@ int client(int port){
 }
 
 void request(int sockfd) { 
-    char buff[1500]; 
+    string op;
+	char buffer[1500]; 
     int state = 1;
     while(state){ 
+		op = "";
         int i = 0; 
-        memset(&buff, 0, sizeof(buff));
+        memset(&buffer, 0, sizeof(buffer));
         printf("\nEntre com a opção desejada\n"); 
         printf("[integrantes] Quais são os integrantes deste grupo?\n");
         printf("[dia] Qual é o dia de hoje?\n");
@@ -36,12 +38,25 @@ void request(int sockfd) {
         printf("[horas] Que horas são?\n");
         printf("[sair] Sair.\n");
 
-        while((buff[i++] = getchar()) != '\n');
-        if((strncmp("sair", buff, 4)) == 0) state = 0;
-        write(sockfd, buff, sizeof(buff)); 
-        read(sockfd, buff, sizeof(buff));
-        printf("Resposta: %s", buff); 
-        memset(&buff, 0, sizeof(buff));
+        while((buffer[i++] = getchar()) != '\n');
+
+        for(int i=0; i < 1500; i++){
+            if(buffer[i] == '\0' || buffer[i] == '\n' || buffer[i] == ' ') break;
+            op += buffer[i];
+        }
+
+        if((strncmp("sair", buffer, 4)) == 0) state = 0;
+
+		if(op == "integrantes" || op == "dia" || op == "mes" || op == "horas"){
+			write(sockfd, buffer, sizeof(buffer)); 
+			read(sockfd, buffer, sizeof(buffer));
+			printf("Resposta: %s", buffer); 
+			memset(&buffer, 0, sizeof(buffer));			
+		}
+		else{
+			cout << "Resposta: Não entendi sua solicitação!\n";
+			memset(&buffer, 0, sizeof(buffer));	
+		}
     } 
 } 
   

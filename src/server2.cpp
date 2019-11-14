@@ -24,8 +24,6 @@ int server(){
         printf("Erro ao criar o socket!\n");
         exit(-1);
     }
-    printf("Servidor ligado com sucesso!\n");
-    printf("Esperando cliente se conectar\n\n");    
     return serverSd;
 }
 
@@ -131,6 +129,9 @@ int main(int argc, char *argv[]){
     int bindStatus = bind(port, serverSd);
     
     listener(serverSd,10);
+
+    printf("Servidor ligado com sucesso!\n");
+    printf("Esperando cliente se conectar\n\n");    
 
     int id_client = 0;
     while(state){
